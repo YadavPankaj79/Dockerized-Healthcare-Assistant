@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row align-items-center justify-content-center mb-4">
+    <div class="col-lg-6 mb-4 mb-lg-0">
+        <div class="hero-badge mb-2">
+            <span>AI-powered care guidance</span>
+        </div>
+        <h1 class="h3 fw-semibold mb-2">Personalized healthcare planning assistant</h1>
+        <p class="text-muted mb-0">
+            Get structured, AI-generated guidance on possible conditions, precautions, medications, and nutrition.
+            This is not a diagnosis and never replaces a visit to a qualified doctor.
+        </p>
+    </div>
+    <div class="col-lg-4 d-none d-lg-block text-center">
+        <img
+            src="https://images.pexels.com/photos/7578800/pexels-photo-7578800.jpeg?auto=compress&cs=tinysrgb&w=600"
+            alt="Healthcare illustration"
+            class="hero-illustration rounded-4"
+        >
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Describe your symptoms</h2>
+                <form method="post" action="/analyze">
+                    <div class="mb-3">
+                        <label for="symptoms" class="form-label fw-semibold">Symptoms<span class="text-danger">*</span></label>
+                        <textarea id="symptoms" name="symptoms" rows="4" class="form-control"
+                                  placeholder="Describe what you are feeling, when it started, and any relevant context">{{ symptoms or '' }}</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="age" class="form-label fw-semibold">Age<span class="text-danger">*</span></label>
+                            <input type="number" min="0" max="120" class="form-control" id="age" name="age"
+                                   placeholder="e.g. 35" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="sex" class="form-label fw-semibold">Sex<span class="text-danger">*</span></label>
+                            <select id="sex" name="sex" class="form-select" required>
+                                <option value="">Select...</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="duration" class="form-label fw-semibold">Duration (optional)</label>
+                            <input type="text" class="form-control" id="duration" name="duration"
+                                   placeholder="e.g. 2 days, 1 week">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="model" class="form-label fw-semibold">Model</label>
+                        <select id="model" name="model" class="form-select">
+                            <option value="groq" {% if current_model == 'groq' %}selected{% endif %}>Groq Llama</option>
+                            <option value="gemini" {% if current_model == 'gemini' %}selected{% endif %}>Google Gemini</option>
+                        </select>
+                    </div>
+                    <div class="d-grid d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary px-4">
+                            Generate advice
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        {% if result %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-primary text-white fw-semibold">
+                            Possible Conditions
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text white-space-prewrap">{{ result.possible_conditions.content }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-warning text-dark fw-semibold">
+                            Precautions
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text white-space-prewrap">{{ result.precautions.content }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-success text-white fw-semibold">
+                            Medication Guidance
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text white-space-prewrap">{{ result.medication_guidance.content }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-info text-white fw-semibold">
+                            Nutrition Advice
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text white-space-prewrap">{{ result.nutrition_advice.content }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
